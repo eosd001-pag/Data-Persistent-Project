@@ -11,17 +11,25 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
+    public GameObject MainMenuButton;
     
     private bool m_Started = false;
     private int m_Points;
-    
+    private string m_Name;
+    private string p_Name;
+    private int m_HighScore;
     private bool m_GameOver = false;
 
     
     // Start is called before the first frame update
     void Start()
     {
+        p_Name = GameManager.Instance.playerName;
+        m_Name = GameManager.Instance.highScoreName;
+        m_HighScore = GameManager.Instance.highScoreScore;
+        HighScoreText.text = "Best Score: " + m_Name + " : " + m_HighScore;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -45,6 +53,7 @@ public class MainManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 m_Started = true;
+                MainMenuButton.SetActive(false);
                 float randomDirection = Random.Range(-1.0f, 1.0f);
                 Vector3 forceDir = new Vector3(randomDirection, 1, 0);
                 forceDir.Normalize();
@@ -66,11 +75,24 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+        if (m_Points > m_HighScore)
+        {
+            HighScoreText.text = "Best Score: " + p_Name + " : " + m_Points;
+            GameManager.Instance.highScoreName = p_Name;
+            GameManager.Instance.highScoreScore = m_Points;
+        }
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        MainMenuButton.SetActive(true);
+    }
+    public void MainMenu()
+    {
+        GameManager.Instance.SaveSettings();
+        GameManager.Instance.inputName.text = p_Name;
+        SceneManager.LoadScene(0);
     }
 }
